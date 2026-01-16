@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Registration</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <a href="{{ url_for('view_registration', registration_id=registration.id) }}" class="back-link">&larr; Back to Details</a>
+            <h1>Update Details</h1>
+        </header>
+
+        <main class="main-content">
+            <div class="form-container">
+                <div class="event-info-box">
+                    <h2>{{ event.name }}</h2>
+                    <p style="font-size: 0.9rem; margin-top: 4px;">Ref: <strong>#REG-{{ registration.id }}</strong></p>
+                </div>
+
+                {% if error %}
+                    <div class="alert alert-error">
+                        <strong>Error:</strong> {{ error }}
+                    </div>
+                {% endif %}
+
+                <form method="POST" class="registration-form">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input 
+                            type="text" 
+                            id="name" 
+                            name="name" 
+                            required 
+                            value="{{ request.form.get('name', registration.name) }}"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            required 
+                            value="{{ request.form.get('email', registration.email) }}"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input 
+                            type="tel" 
+                            id="phone" 
+                            name="phone" 
+                            required 
+                            pattern="[0-9]{10}"
+                            value="{{ request.form.get('phone', registration.phone) }}"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="organization">Organization</label>
+                        <input 
+                            type="text" 
+                            id="organization" 
+                            name="organization" 
+                            value="{{ request.form.get('organization', registration.organization) }}"
+                        >
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <a href="{{ url_for('view_registration', registration_id=registration.id) }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+    </div>
+</body>
+</html>

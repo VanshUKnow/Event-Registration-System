@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Confirmed</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <a href="{{ url_for('index') }}" class="back-link">&larr; Return to Events</a>
+            <h1>Confirmation</h1>
+        </header>
+
+        <main class="main-content">
+            <div class="confirmation-container">
+                <div class="confirmation-box success">
+                    <div class="success-icon">✓</div>
+                    <h2>Registration Confirmed</h2>
+                    <p>We look forward to seeing you there.</p>
+                </div>
+
+                <div class="details-section">
+                    <div class="details-grid">
+                        <div class="detail-row">
+                            <span class="detail-key">Event</span>
+                            <span class="detail-value">{{ event.name }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-key">Date & Time</span>
+                            <span class="detail-value">{{ event.date }} at {{ event.time }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-key">Location</span>
+                            <span class="detail-value">{{ event.location }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="details-section" style="margin-top: 32px;">
+                    <div class="details-grid">
+                        <div class="detail-row">
+                            <span class="detail-key">Reference ID</span>
+                            <span class="detail-value" style="font-family: monospace; letter-spacing: 0.05em;">#REG-{{ registration.id }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-key">Attendee</span>
+                            <span class="detail-value">{{ registration.name }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-key">Email</span>
+                            <span class="detail-value">{{ registration.email }}</span>
+                        </div>
+                        {% if registration.organization %}
+                            <div class="detail-row">
+                                <span class="detail-key">Organization</span>
+                                <span class="detail-value">{{ registration.organization }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <a href="{{ url_for('edit_registration', registration_id=registration.id) }}" class="btn btn-secondary" style="width: 100%">Edit Details</a>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary" style="width: 100%">Browse More Events</a>
+                </div>
+
+                <div class="info-box" style="font-size: 0.85rem; text-align: center; margin-top: 24px;">
+                    <p>A receipt has been sent to {{ registration.email }}.</p>
+                </div>
+            </div>
+        </main>
+
+    </div>
+</body>
+</html>
