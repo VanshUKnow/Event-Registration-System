@@ -5,22 +5,18 @@ import os
 
 app = Flask(__name__)
 
-# ============ DATABASE CONFIGURATION ============
-# Update these with your MySQL credentials
-MYSQL_USER = 'root'           # Your MySQL username
-MYSQL_PASSWORD = 'root1234'   # Your MySQL password
-MYSQL_HOST = 'localhost'      # MySQL server host
-MYSQL_PORT = 3306            # MySQL server port
-MYSQL_DB = 'event_registration'  # Database name
+MYSQL_USER = 'root'           
+MYSQL_PASSWORD = 'root1234'   
+MYSQL_HOST = 'localhost'      
+MYSQL_PORT = 3306            
+MYSQL_DB = 'event_registration'  
 
-# SQLAlchemy configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ECHO'] = True  # Log all SQL queries (remove in production)
+app.config['SQLALCHEMY_ECHO'] = True  
 
 db = SQLAlchemy(app)
 
-# ============ DATABASE MODELS ============
 
 class Event(db.Model):
     """Event model for storing event information"""
@@ -35,7 +31,6 @@ class Event(db.Model):
     description = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now)
     
-    # Relationship with registrations
     registrations = db.relationship('Registration', backref='event', lazy=True, cascade='all, delete-orphan')
     
     def to_dict(self):
@@ -67,7 +62,6 @@ class Registration(db.Model):
     organization = db.Column(db.String(255), nullable=True)
     registered_at = db.Column(db.DateTime, default=datetime.now)
     
-    # Unique constraint: one email per event
     __table_args__ = (db.UniqueConstraint('event_id', 'email', name='uq_event_email'),)
     
     def to_dict(self):
@@ -82,8 +76,6 @@ class Registration(db.Model):
             'registered_at': self.registered_at.strftime('%Y-%m-%d %H:%M:%S')
         }
 
-
-# ============ ROUTES ============
 
 @app.route('/')
 def index():
@@ -105,13 +97,11 @@ def register(event_id):
         event_data = event.to_dict()
         
         if request.method == 'POST':
-            # Get form data
             name = request.form.get('name', '').strip()
             email = request.form.get('email', '').strip()
             phone = request.form.get('phone', '').strip()
             organization = request.form.get('organization', '').strip()
             
-            # Validation
             errors = []
             if not name:
                 errors.append('Name is required')
@@ -120,11 +110,9 @@ def register(event_id):
             if not phone or len(phone) < 10:
                 errors.append('Valid phone number is required')
             
-            # Check capacity
             if event_data['is_full']:
                 errors.append('This event is full. No more registrations available.')
             
-            # Check if already registered
             existing = Registration.query.filter_by(event_id=event_id, email=email).first()
             if existing:
                 errors.append('This email is already registered for this event')
@@ -135,7 +123,6 @@ def register(event_id):
                                      error=', '.join(errors),
                                      form_data=request.form)
             
-            # Create and save registration
             try:
                 registration = Registration(
                     event_id=event_id,
@@ -188,13 +175,11 @@ def edit_registration(registration_id):
         reg_data = registration.to_dict()
         
         if request.method == 'POST':
-            # Get form data
             name = request.form.get('name', '').strip()
             email = request.form.get('email', '').strip()
             phone = request.form.get('phone', '').strip()
             organization = request.form.get('organization', '').strip()
             
-            # Validation
             errors = []
             if not name:
                 errors.append('Name is required')
@@ -203,7 +188,6 @@ def edit_registration(registration_id):
             if not phone or len(phone) < 10:
                 errors.append('Valid phone number is required')
             
-            # Check if email is already used by someone else for this event
             duplicate = Registration.query.filter(
                 Registration.email == email,
                 Registration.event_id == registration.event_id,
@@ -220,7 +204,6 @@ def edit_registration(registration_id):
                                      error=', '.join(errors),
                                      form_data=request.form)
             
-            # Update registration
             try:
                 registration.name = name
                 registration.email = email
@@ -248,17 +231,13 @@ def edit_registration(registration_id):
         return redirect(url_for('index'))
 
 
-# ============ DATABASE INITIALIZATION ============
 
 def init_db():
     """Initialize database with sample events"""
     with app.app_context():
-        # Create all tables
         db.create_all()
         
-        # Check if events already exist
         if Event.query.first() is None:
-            # Sample events
             sample_events = [
                 Event(
                     name='Python Workshop',
@@ -294,8 +273,6 @@ def init_db():
 
 
 if __name__ == '__main__':
-    # Initialize database
     init_db()
     
-    # Run the application
     app.run(debug=True)
